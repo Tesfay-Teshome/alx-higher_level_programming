@@ -1,31 +1,35 @@
-!/usr/bin/python3
-""" Filter states by user input """
-
-from sys import argv
+#!/usr/bin/python3
+"""Display name argument of states table"""
 import MySQLdb
+import sys
 
-if __name__ == "__main__":
-    username = argv[1]
-    password = argv[2]
-    db_name = argv[3]
-    state_name = argv[4]
+
+def filter_names():
+    """Takes arguments argv to list from database
+    Only lists with states that matches name argument
+    Arguments:
+        argv[1]: mysql username
+        argv[2]: mysql password
+        argv[3]: database name
+        argv[4]: state name
+    """
     db = MySQLdb.connect(host="localhost",
                          port=3306,
-                         user=username,
-                         passwd=password,
-                         db=db_name)
+                         user=sys.argv[1],
+                         passwd=sys.argv[2],
+                         db=sys.argv[3])
+
     cur = db.cursor()
 
-    query = """
-    SELECT states.id, name FROM states WHERE name='{:s}'
-    COLLATE latin1_general_cs
-    ORDER BY states.id ASC;
-    """.format(state_name)
-
-    cur.execute(query)
+    cur.execute("SELECT * FROM states WHERE BINARY name='{:s}'\
+                ORDER BY id ASC".format(sys.argv[4]))
     rows = cur.fetchall()
-    for row in rows:
-        print(row)
+    for i in rows:
+        print(i)
 
     cur.close()
     db.close()
+
+
+if __name__ == "__main__":
+    filter_names()
